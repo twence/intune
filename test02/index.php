@@ -1,1 +1,0 @@
-<iframe src="http://10.120.0.108/nagios/cgi-bin/status.cgi?host=all&servicestatustypes=28&hoststatustypes=15" height="2048" width="100%"></iframe>
