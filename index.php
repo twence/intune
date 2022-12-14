@@ -1,0 +1,2 @@
+<h1 style="color:blue;text-align:center;">Intune Twence</h1><hr>
+<p style="width:100%;text-align:center;"><img src="wallpaper.jpg" alt="wallpaper Twence" style="width:80%;margin-left:auto;margin-right:auto;display:block;"></p>

@@ -1,0 +1,27 @@
+<site-list version="1">
+  <created-by>
+    <tool>EMIESiteListManager</tool>
+    <version>10.0.14357.1004</version>
+    <date-created>08/08/2019 11:45:53</date-created>
+  </created-by>
+  <site url="start.twence.nl">
+    <compat-mode>IE11</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+  <site url="mijn.twence.nl">
+    <compat-mode>IE11</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+  <site url="yf-xsso">
+    <compat-mode>IE11</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+  <site url="yf-xsso.twence.local">
+    <compat-mode>IE11</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+    <site url="priva.twence.nl">
+    <compat-mode>IE11</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+</site-list>

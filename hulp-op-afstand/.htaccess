@@ -1,0 +1,12 @@
+RewriteEngine on 
+DirectoryIndex index.php index.shtml index.html HulpopAfstand.pdf
+
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+Options +SymLinksIfOwnerMatch 
+RewriteEngine On 
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /hulp-op-afstand/HulpopAfstand.pdf [L]

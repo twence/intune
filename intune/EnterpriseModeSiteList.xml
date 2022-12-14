@@ -1,0 +1,31 @@
+<site-list version="3">
+  <created-by>
+    <tool>EMIESiteListManager</tool>
+    <version>10.0.14357.1004</version>
+    <date-created>04/09/2020 09:04:19</date-created>
+  </created-by>
+  <site url="start.twence.nl">
+    <compat-mode>Default</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+  <site url="mijn.twence.nl">
+    <compat-mode>Default</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+  <site url="pvv.nl">
+    <compat-mode>IE7Enterprise</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+  <site url="10.203.0.17">
+    <compat-mode>IE7Enterprise</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+  <site url="10.203.0.57">
+    <compat-mode>IE7Enterprise</compat-mode>
+    <open-in>IE11</open-in>
+  </site>
+  <site url="10.203.0.47">
+  <compat-mode>IE7Enterprise</compat-mode>
+  <open-in>IE11</open-in>
+</site>
+</site-list>

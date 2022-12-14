@@ -1,0 +1,260 @@
+<html>
+	<head>
+		<title>Citrix DB migratie</title>
+		
+	</head>
+	<body>
+<p>
+Five connection strings and one database. That’s it! These were all you had to worry about when migrating a XenDesktop 5.x database. My how the times have changed! Fast forward to today and we are living in a much more sophisticated 7.x world in which we have several new bells and whistles that make XenDesktop administration a breeze.</p>
+
+<div>Three of these new features include Configuration Logging, Monitoring and Delegated Administration. They provide a ton of value, however, if you are not properly prepared for the migration procedure, they can leave you in a bad place.</div>
+
+There are many reasons you may need to migrate your database connection such as …
+
+<h2>Moving to a new SQL server</h2>
+<p>Enabling database encryption
+Moving a XD controller to a new farm
+The following example is not intended to be a definitive guide for all of the various ways a XenDesktop site might be configured and how to migrate it, rather it simply covers the migration of a basic configuration to provide insight on how the procedure works. More complex configurations such as those implementing SQL mirroring, SQL clustering, separate XenDesktop logging and monitoring databases or even sites with multiple XenDesktop controllers require a bit more care and planning.
+</p>
+<p>Lets Get Started: Migrate a XenDesktop 7.1 database to a new SQL server. This XenDesktop site consists of a single server which uses a single database and also hosts StoreFront.
+</p>
+<p>First, let’s have a look at the existing database connection strings. On the DDC, launch a Powershell Session and add the XenDesktop PoSH Snapins:</p>
+<p>
+<em><strong>PS C:\ &gt; Add-PSSnapin Citrix*</strong></em><br/>
+View the existing database connection strings for the three XenDesktop datastores [Site, Logging & Monitoring]:        
+<br>
+<strong><em>PS C:\&gt; Get-LogDataStore</em></strong><br>
+<em><span style="color: red">ConnectionString : Server=env3-sql1\AON;Initial Catalog=CitrixXD7;Integrated Security=True</span></em>
+<em><span style="color: red">DataStore : Site</span></em>
+<em>DatabaseType : SqlServer</em>
+<em>Provider : MSSQL</em>
+<em>SchemaName : ConfigLoggingSiteSchema</em>
+<em>Status : OK</em>
+
+<em><span style="color: red">ConnectionString : Server=env3-sql1\AON;Initial Catalog=CitrixXD7;Integrated Security=True</span></em>
+<em><span style="color: red">DataStore : Logging</span></em>
+<em>DatabaseType : SqlServer</em>
+<em>Provider : MSSQL</em>
+<em>SchemaName : ConfigLoggingSchema</em>
+<em>Status : OK</em>
+
+<strong><em><strong><em>PS C:\&gt; Get-MonitorDataStore</em></strong></em></strong>
+<em>ConnectionString : Server=env3-sql1\AON;Initial Catalog=CitrixXD7;Integrated </em><em><em>Security=True</em></em>
+<em>DataStore : Site</em>
+<em>DatabaseType : SqlServer</em>
+<em>Provider : MSSQL</em>
+<em>SchemaName : Monitor</em>
+<em>Status : OK</em>
+
+<em><span style="color: red">ConnectionString : Server=env3-sql1\AON;Initial Catalog=CitrixXD7;Integrated Security=True</span></em>
+<em><span style="color: red">DataStore : Monitor</span></em>
+<em>DatabaseType : SqlServer</em>
+<em>Provider : MSSQL</em>
+<em>SchemaName : MonitorData</em>
+<em>Status : OK</em>
+We can see here that the main site, logging and monitoring datastores are all using the same database on the same SQL server. This is normal and is the default configuration for a XenDesktop site, it also means there is a bit less to worry about as we only have to migrate a single database to the new database server and only work with a single new connection string.
+
+Note: The locations of the three datastores can also be viewed in the Desktop Studio console on the Configuration node as shown below.
+
+
+Let’s go ahead and create the new connection string we will use later to point our DDC to the new SQL server:
+
+<strong>PS C:\&gt; $cs = "Server=env3-sql2\AON;Initial Catalog=CitrixXD7;Integrated Security=True"</strong>
+Notice the connection string is identical to the previous one observed except for the SQL server name. Note, in my example both the original SQL server and the new SQL server use the same instance name of “AON”
+
+Now that we have the old and new connection strings, lets disable configuration logging for the XD site:
+
+<strong>PS C:\&gt; Set-LogSite -State Disabled</strong>
+Next, set all the database connections to NULL.
+
+Note: The order of these commands is important, for example setting a core service such as the admin service to null before other dependent services will prevent you from disconnecting the dependent service.
+<strong>PS C:\&gt; Set-LogDBConnection -DataStore Logging -DBConnection $null</strong>
+
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+
+<strong>PS C:\&gt; Set-MonitorDBConnection -DataStore Monitor -DBConnection $null</strong>
+
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+<strong><em> </em></strong>
+<strong><em>PS C:\&gt; Set-MonitorDBConnection -DBConnection $null</em></strong>
+
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+<strong><em> </em></strong>
+<strong><em>PS C:\&gt; Set-AcctDBConnection -DBConnection $null</em></strong>
+<strong><em> </em></strong>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+
+<strong><em>PS C:\&gt; Set-ProvDBConnection -DBConnection $null</em></strong>
+<strong><em> </em></strong>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+<strong><em> </em></strong>
+<strong><em>PS C:\&gt; Set-BrokerDBConnection -DBConnection $null</em></strong>
+<strong><em> </em></strong>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured {}</em>
+<strong><em> </em></strong>
+<strong><em>PS C:\&gt; Set-EnvTestDBConnection -DBConnection $null</em></strong>
+<strong><em> </em></strong>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+<strong><em> </em></strong>
+<strong><em>PS C:\&gt; Set-SfDBConnection -DBConnection $null</em></strong>
+<strong><em> </em></strong>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+<strong><em> </em></strong>
+<strong><em>PS C:\&gt; Set-HypDBConnection -DBConnection $null</em></strong>
+<strong><em> </em></strong>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+
+Note: To set the remaining core services (Config, Log & Admin) database connections to NULL you must either use the “-force” parameter or take the database offline.
+<strong><em>PS C:\&gt; Set-ConfigDBConnection -DBConnection $null -force</em></strong>
+<strong><em> </em></strong>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+<strong><em> </em></strong>
+<strong><em>PS C:\&gt; Set-LogDBConnection -DBConnection $null -force</em></strong>
+<strong><em> </em></strong>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+<strong><em> </em></strong>
+<strong><em>PS C:\&gt; Set-AdminDBConnection -DBConnection $null -force</em></strong>
+<strong><em> </em></strong>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> DBUnconfigured</em>
+<em> </em>
+Now that we have disconnected the XenDesktop services from the database let’s back-up the existing database on the original SQL server.</p>
+<p>
+Note: I will use the sqlcmd utility to perform the required SQL work throughout this example however SQL Studio can also be used if you prefer a GUI.
+<strong><em>C:\ &gt;sqlcmd -S env3-sql1\AON -q "backup database [CitrixXD7] to disk='c:\CitrixXD7.bak'"</em></strong>
+<em> Processed 3168 pages for database 'CitrixXD7', file 'CitrixXD7' on file 1.</em>
+<em> Processed 6 pages for database 'CitrixXD7', file 'CitrixXD7_log' on file 1.</em>
+<em> BACKUP DATABASE successfully processed 3174 pages in 3.357 seconds (7.384 MB/sec).</em>
+
+Copy the backed up database file to the new SQL server and restore the database.
+<strong><em>C:\&gt;sqlcmd -S env3-sql2\AON -q "restore database [CitrixXD7] from disk='c:\CitrixXD7.bak'"</em></strong>
+<em> Processed 3168 pages for database 'CitrixXD7', file 'CitrixXD7' on file 1.</em>
+<em> Processed 6 pages for database 'CitrixXD7', file 'CitrixXD7_log' on file 1.</em>
+<em> RESTORE DATABASE successfully processed 3174 pages in 1.109 seconds (22.353 MB/sec).</em>
+Note: For more information regarding backing up and restoring databases, see http://msdn.microsoft.com/en-us/library/ms190436.aspx
+As XenDesktop uses machine accounts of the DDC servers to access the database directly. We must create machine account logins for each of the DDCs in the site on the new SQL server.
+
+<strong>C:\&gt;sqlcmd -S env3-sql2\AON -q "create login [2k3\DDC1$] from windows"</strong>
+Note: It is also possible to generate a script using the XenDesktop Powershell commandlets that will apply the required machine account logins for the DDC to the new SQL server. To do so use the Get-XXXDbSchema comandlets (where XXX is the service name such as Acct, Broker, Config, EnvTest, Hyp, Log, Monitor, Prov, Sf or Admin) with the “-ScriptType login” parameter and run the resulting script on your new SQL server. In this example, since all three datastores reside in a single database on a single database server we can use any of the Get-XXXDbSchema comandlets and only need to do it one time. The following examples shows how this might be done:
+PS C:\> get-ConfigDBschema -ScriptType login -databasename CitrixXD7 > config.sql
+C:\>sqlcmd -S env3-sql2\AON -i config.sql
+Now that everything is in place on the new SQL server, we can safely connect the DDC to the new database, re-enable configuration logging for the XD site and delete the old database completely.
+
+Connect the DDC to the new database:
+
+<strong>PS C:\&gt; set-ConfigDBconnection -dbconnection $cs</strong>
+
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; set-AdminDBconnection -dbconnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; set-LogDBconnection -dbconnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; set-AcctDBconnection -dbconnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; set-BrokerDBconnection -dbconnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; set-EnvTestDBconnection -dbconnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; set-HypDBconnection -dbconnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; set-MonitorDBconnection -dbconnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; set-ProvDBconnection -dbconnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; set-SfDBconnection -dbconnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; Set-LogDbConnection -DataStore logging -DbConnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+<em> </em>
+<strong><em>PS C:\&gt; Set-MonitorDbConnection -DataStore monitor -DbConnection $cs</em></strong>
+<em> </em>
+<em> ServiceStatus ExtraInfo</em>
+<em> ------------- ---------</em>
+<em> OK {}</em>
+Re-enable configuration logging for the XD site:
+
+<strong>PS C:\&gt; Set-LogSite -State Enabled</strong>
+Run a quick test to make sure its happy:
+
+<strong><em>PS D:\Support\Tools\Scripts&gt; $testString = Get-BrokerDBConnection</em></strong>
+<strong><em>PS D:\Support\Tools\Scripts&gt; Test-BrokerDBConnection $testString | fl</em></strong>
+<em> </em>
+<em> ServiceStatus : OK</em>
+<em> ExtraInfo : {}</em>
+Delete the old database from the original SQL server:
+
+<strong><em>C:\&gt;sqlcmd -S env3-sql1\AON -q "alter database [CitrixXD7] set single_user with rollback immediate;"</em></strong>
+<em>Nonqualified transactions are being rolled back. Estimated rollback completion:</em>
+<em>0%.</em>
+<em>Nonqualified transactions are being rolled back. Estimated rollback completion:</em>
+<em>100%.</em>
+<strong><em> </em></strong>
+<strong><em>C:\&gt;sqlcmd -S env3-sql1\AON -q "drop database [CitrixXD7]"</em></strong>
+</p>
+	</body>
+</html>
