@@ -1,0 +1,1 @@
+https://www.thelazyadministrator.com/2019/11/14/deploy-web-link-shortcuts-to-the-desktop-and-start-menu-using-intune/
