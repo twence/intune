@@ -1,0 +1,12 @@
+opensearchDashboards.branding:
+  applicationTitle: "Twence Security Dashboard"
+  logo:
+    defaultUrl: "https://your-webserver.example/wazuh-branding/twence-logo-light.svg"
+    darkModeUrl: "https://your-webserver.example/wazuh-branding/twence-logo-dark.svg"
+  mark:
+    defaultUrl: "https://your-webserver.example/wazuh-branding/twence-mark-light.svg"
+    darkModeUrl: "https://your-webserver.example/wazuh-branding/twence-mark-dark.svg"
+  loadingLogo:
+    defaultUrl: "https://your-webserver.example/wazuh-branding/twence-loading-light.svg"
+    darkModeUrl: "https://your-webserver.example/wazuh-branding/twence-loading-dark.svg"
+  faviconUrl: "https://your-webserver.example/wazuh-branding/twence-favicon.svg"

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 120" role="img" aria-label="Twence Security Dashboard">
+  <title>Twence Security Dashboard</title>
+  <rect width="360" height="120" rx="8" fill="#0a0a0a"/>
+  <circle cx="58" cy="60" r="34" fill="#00aeef"/>
+  <path fill="#ffffff" d="M66.5 51.2C69.7 46.4 70.8 44.5 74.8 39H28.9l-2.8 12h15.4L34 91.5C43.1 82.5 47.1 78 53.9 69.8l3-18.6h9.6z"/>
+  <text x="110" y="57" fill="#ffffff" font-family="IBM Plex Sans, Arial, sans-serif" font-size="28" font-weight="700">Twence</text>
+  <text x="110" y="83" fill="#cccccc" font-family="IBM Plex Sans, Arial, sans-serif" font-size="18">Security Dashboard</text>
+</svg>
